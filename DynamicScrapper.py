@@ -17,7 +17,7 @@ with sync_playwright() as p:
     page.goto("https://www.wanted.co.kr/")
     page.click("button.Aside_searchButton__Xhqq3")
     time.sleep(1)
-    page.get_by_placeholder("검색어를 입력해 주세요.").fill("python")
+    page.get_by_placeholder("검색어를 입력해 주세요.").fill("js")
     time.sleep(1)
     page.keyboard.press("Enter")
     time.sleep(1)
@@ -48,15 +48,16 @@ for job in jobs:
 
 print(f"{len(job_list)}개의 채용 정보를 찾았습니다.")
 
-# CSV 파일로 저장
+# 파일명 중복 방지
 base_filename = "jobs"
-filename = f"{base_filename}.csv"
 file_counter = 1
+filename = f"{base_filename}_{file_counter}.csv"
 
 while os.path.exists(filename):
     filename = f"{base_filename}_{file_counter}.csv"
     file_counter += 1
 
+# CSV 파일로 저장
 with open(filename, "w", newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
     writer.writerow(["Title", "Company", "Reward", "Link"])
