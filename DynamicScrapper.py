@@ -3,6 +3,7 @@ from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 import time
 import csv
+import pandas as pd
 
 # User-Agent 설정
 user_agent = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -29,8 +30,6 @@ with sync_playwright() as p:
 
     time.sleep(1)
     content = page.content()
-    
-    # 브라우저 인스턴스 종료
     browser.close()
 
 # BeautifulSoup 라이브러리를 사용하여 잡 리스트 추출
@@ -42,26 +41,39 @@ for job in jobs:
     link = f"https://www.wanted.co.kr{job.find('a')['href']}"
     title = job.find("strong", class_ = "JobCard_title__ddkwM").text
     company = job.find("span", class_ = "JobCard_companyName__vZMqJ").text
-    reward = job.find("span", class_ = "JobCard_reward__sdyHn").text
-    job = {"Title": title, "Company": company, "Reward": reward, "Link": link}
+    job = {"Title": title, "Company": company, "Link": link}
     job_list.append(job)
 
 print(f"{len(job_list)}개의 채용 정보를 찾았습니다.")
 
-# 파일명 중복 방지
+# CSV 파일로 저장
+# base_filename = "jobs"
+# file_counter = 1
+# filename = f"{base_filename}_{file_counter}.csv"
+
+# while os.path.exists(filename):
+#     filename = f"{base_filename}_{file_counter}.csv"
+#     file_counter += 1
+
+# with open(filename, "w", newline='', encoding='utf-8') as file:
+#     writer = csv.writer(file)
+#     writer.writerow(["Title", "Company", "Link"])
+#     for job in job_list:
+#         writer.writerow(job.values())
+
+# DataFrame으로 변환
+df = pd.DataFrame(job_list)
+
+# Excel 파일로 저장
 base_filename = "jobs"
 file_counter = 1
-filename = f"{base_filename}_{file_counter}.csv"
+filename = f"{base_filename}_{file_counter}.xlsx"
 
 while os.path.exists(filename):
-    filename = f"{base_filename}_{file_counter}.csv"
     file_counter += 1
+    filename = f"{base_filename}_{file_counter}.xlsx"
 
-# CSV 파일로 저장
-with open(filename, "w", newline='', encoding='utf-8') as file:
-    writer = csv.writer(file)
-    writer.writerow(["Title", "Company", "Reward", "Link"])
-    for job in job_list:
-        writer.writerow(job.values())
+df.to_excel(filename, index=False)
+
 
 print(f"{filename} 파일로 저장되었습니다.")
